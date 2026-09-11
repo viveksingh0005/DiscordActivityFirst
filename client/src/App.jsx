@@ -1,6 +1,6 @@
 import RandomNumberGenerator from "./components/RandomNumberGenerator"
 import { useEffect } from "react";
-import { initializeDiscord } from "./discordSDK";
+import { initializeDiscord } from "./discordSdk";
 function App() {
   
 
