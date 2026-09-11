@@ -16,6 +16,7 @@ export const initializeDiscord = async () => {
       state: "",
       prompt: "none",
       scope: ["identify"],
+      redirect_uri: import.meta.env.VITE_DISCORD_REDIRECT_URI,
     });
 
     console.log("Got Discord auth code:", code);
