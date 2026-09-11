@@ -22,11 +22,16 @@ export const initializeDiscord = async () => {
     console.log("Got Discord auth code:", code);
 
     // यह code अपने backend को भेजना
-    const response = await fetch("/api/auth/discord", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
-    });
+   const response = await fetch(
+  "https://discordactivityfirst.onrender.com/api/auth/discord",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ code }),
+  }
+);
 
     const data = await response.json();
     console.log("Backend login response:", data);
