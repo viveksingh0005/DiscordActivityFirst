@@ -23,7 +23,7 @@ export const initializeDiscord = async () => {
 
     // यह code अपने backend को भेजना
    const response = await fetch(
-  "https://discordactivityfirst.onrender.com/api/auth/discord",
+  "/api/auth/discord",
   {
     method: "POST",
     headers: {
