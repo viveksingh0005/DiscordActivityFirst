@@ -1,6 +1,6 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
-const discordSdk = new DiscordSDK("1547857715450093568");
+const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 export const initializeDiscord = async () => {
       console.log("Initializing Discord SDK...");
