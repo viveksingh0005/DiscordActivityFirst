@@ -19,15 +19,31 @@ export const initializeDiscord = async () => {
     await discordSdk.ready();
 
     console.log("STEP 4: discordSdk.ready() SUCCESS");
-    console.log("STEP 4.1: About to authorize");
+    console.log("AAAAA");
 
-const authResult = await discordSdk.commands.authorize({
-  client_id: clientId,
-  response_type: "code",
-  state: "",
-  prompt: "none",
-  scope: ["identify"],
-});
+try {
+  console.log("BBBBB");
+
+  const authorizeFunction = discordSdk.commands.authorize;
+
+  console.log("CCCCC", authorizeFunction);
+
+  console.log("DDDDD");
+
+  const authResult = await authorizeFunction({
+    client_id: clientId,
+    response_type: "code",
+    state: "",
+    prompt: "none",
+    scope: ["identify"],
+  });
+
+  console.log("EEEEE");
+  console.log("AUTH RESULT:", authResult);
+
+} catch (error) {
+  console.error("AUTHORIZE ERROR:", error);
+}
 
     console.log("STEP 5: Calling authorize()");
 
