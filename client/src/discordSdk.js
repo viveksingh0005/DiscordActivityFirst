@@ -8,13 +8,12 @@ export const initializeDiscord = async () => {
   console.log("1. Initializing Discord SDK...");
 
   try {
+    console.log("BEFORE READY");
+
     await discordSdk.ready();
 
-    console.log("2. Discord SDK is ready!");
+    console.log("AFTER READY");
 
-    // -----------------------------
-    // AUTHORIZE
-    // -----------------------------
     console.log("3. Starting Discord authorize...");
 
     const authResult = await discordSdk.commands.authorize({
