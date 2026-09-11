@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-
+import gameRoutes from "./routes/gameRoutes.js"
 dotenv.config();
 
 const app = express();
@@ -13,7 +13,7 @@ const app = express();
 app.use(
   cors({
      
-    origin: "https://client-ux1k.vercel.app/",
+    origin: "https://client-ux1k.vercel.app",
     credentials: true,
   })
 );
@@ -21,6 +21,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/game", gameRoutes);
 
 // Test route
 app.get("/", (req, res) => {

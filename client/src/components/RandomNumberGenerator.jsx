@@ -5,51 +5,74 @@ const RandomNumberGenerator = () => {
   const [letters, setLetters] = useState([]);
   const [timeLeft, setTimeLeft] = useState(10);
   const [isHidden, setIsHidden] = useState(false);
-  const [targetSum, setTargetSum] = useState(null);
-  const [originalNumbers, setOriginalNumbers] = useState([]);
-  const [selected, setSelected] = useState([]); // indexes of selected letters
-  const [gameResult, setGameResult] = useState(null); // "win" | "lose" | null
+  const [targetSum, setTargetSum] = useState(null)
+  const [selected, setSelected] = useState([]);
+  const [gameResult, setGameResult] = useState(null);
+  const [gameId, setGameId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [points, setPoints] = useState(null);
 
   useEffect(() => {
-    // Generate 16 random numbers (1-20)
-    const randomNumbers = Array.from({ length: 16 }, () =>
-      Math.floor(Math.random() * 20) + 1
-    );
+  const startGame = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    setNumbers(randomNumbers);
-    setOriginalNumbers(randomNumbers);
-
-    // Generate letters A to P
-    const alphabet = "ABCDEFGHIJKLMNOP".split("");
-    setLetters(alphabet);
-
-    // Countdown timer
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsHidden(true);
-
-          // Create a target sum using 2 or 3 random numbers
-          const count = Math.random() > 0.5 ? 2 : 3;
-          const indexes = [];
-          while (indexes.length < count) {
-            const idx = Math.floor(Math.random() * 16);
-            if (!indexes.includes(idx)) indexes.push(idx);
-          }
-
-          const sum = indexes.reduce((acc, i) => acc + randomNumbers[i], 0);
-          setTargetSum(sum);
-
-          return 0;
-        }
-        return prev - 1;
+      const response = await fetch("/api/game/start", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+      const data = await response.json();
 
+      console.log("Game started:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to start game");
+      }
+
+      // Store game ID
+      setGameId(data.gameId);
+
+      // Store numbers from backend
+      setNumbers(data.numbers);
+
+      // Store target from backend
+      setTargetSum(data.targetSum);
+
+      // Generate letters
+      setLetters("ABCDEFGHIJKLMNOP".split(""));
+
+      setLoading(false);
+
+    } catch (error) {
+      console.error("Start game error:", error);
+      setLoading(false);
+    }
+  };
+
+  startGame();
+}, []);
+
+useEffect(() => {
+  if (loading) return;
+
+  const interval = setInterval(() => {
+    setTimeLeft((prev) => {
+      if (prev <= 1) {
+        clearInterval(interval);
+        setIsHidden(true);
+
+        return 0;
+      }
+
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [loading]);
   // Toggle letter selection
   const handleSelect = (index) => {
     if (gameResult) return; // prevent selecting after result
@@ -64,17 +87,55 @@ const RandomNumberGenerator = () => {
   };
 
   // Check answer
-  const checkAnswer = () => {
-    if (selected.length === 0) return;
+ const checkAnswer = async () => {
+  if (selected.length === 0) return;
 
-    const sum = selected.reduce((acc, index) => acc + originalNumbers[index], 0);
+  try {
+    const token = localStorage.getItem("token");
 
-    if (sum === targetSum) {
-      setGameResult("win");
-    } else {
+    const response = await fetch("/api/game/answer", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        gameId,
+        selectedIndexes: selected,
+      }),
+    });
+
+    const data = await response.json();
+
+    console.log("Answer response:", data);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to check answer");
+    }
+
+    if (data.result === "win"){
+  <div className="text-center">
+    <div className="text-3xl font-bold text-green-600 mb-2">
+      🎉 You Win!
+    </div>
+
+    <div className="text-xl font-semibold text-indigo-600 mb-4">
+      +10 Points
+    </div>
+     <div className="text-gray-600 mb-4">
+      Total Points: {points}
+    </div>
+  </div>
+} else {
       setGameResult("lose");
     }
-  };
+
+  } catch (error) {
+    console.error("Answer error:", error);
+  }
+};
 
   // Restart game
   const restartGame = () => {
