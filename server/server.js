@@ -39,8 +39,8 @@ app.use(
 app.use(express.json());
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/game", gameRoutes);
+app.use("/auth", authRoutes);
+app.use("/game", gameRoutes);
 
 // Test route
 app.get("/", (req, res) => {
