@@ -1,17 +1,40 @@
-import RandomNumberGenerator from "./components/RandomNumberGenerator"
-import { useEffect } from "react";
+import RandomNumberGenerator from "./components/RandomNumberGenerator";
+import { useEffect, useState } from "react";
 import { initializeDiscord } from "./discordSdk";
+
 function App() {
-  
+  const [authReady, setAuthReady] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
-initializeDiscord();
-}, []);
-  return (
- <>
- <RandomNumberGenerator/>
- </>
-  )
+    initializeDiscord()
+      .then(() => {
+        setAuthReady(true);
+      })
+      .catch((err) => {
+        console.error("Discord init failed:", err);
+        setAuthError(err.message || "Failed to connect to Discord");
+      });
+  }, []);
+
+  if (authError) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <h2>Unable to connect</h2>
+        <p>{authError}</p>
+      </div>
+    );
+  }
+
+  if (!authReady) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <p>Connecting to Discord...</p>
+      </div>
+    );
+  }
+
+  return <RandomNumberGenerator />;
 }
 
-export default App
+export default App;
