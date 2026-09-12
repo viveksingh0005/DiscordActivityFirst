@@ -403,7 +403,12 @@ const RandomNumberGenerator = () => {
           }
 
         </p>
-
+ <button
+          onClick={() => navigate("/")}
+          className="px-6 py-2 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition"
+        >
+          ← Back to Home
+        </button>
       </div>
 
 

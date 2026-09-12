@@ -1,11 +1,49 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import discordSdk, { getAccessToken } from "../discordSdk"; 
 const Profile = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  async function generateShareCardBlob({ points, rank, name }) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 600;
+  canvas.height = 315;
+  const ctx = canvas.getContext("2d");
+  const grad = ctx.createLinearGradient(0, 0, 600, 315);
+  grad.addColorStop(0, "#3730a3");
+  grad.addColorStop(1, "#a21caf");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 600, 315);
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 28px sans-serif";
+  ctx.fillText(`${name}'s Score`, 40, 70);
+  ctx.font = "bold 64px sans-serif";
+  ctx.fillText(`${points} pts`, 40, 160);
+  ctx.font = "32px sans-serif";
+  ctx.fillText(rank ? `Rank #${rank}` : "Alpha Memory", 40, 210);
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+async function shareScoreToDiscord({ points, rank, name }) {
+  const accessToken = getAccessToken();
+  if (!accessToken) return alert("Not connected to Discord yet.");
+
+  const blob = await generateShareCardBlob({ points, rank, name });
+  const imageFile = new File([blob], "score.png", { type: "image/png" });
+  const body = new FormData();
+  body.append("file", imageFile);
+
+  const attachmentRes = await fetch(
+    `https://discord.com/api/applications/${import.meta.env.VITE_DISCORD_CLIENT_ID}/attachment`,
+    { method: "POST", headers: { Authorization: `Bearer ${accessToken}` }, body }
+  );
+  const { attachment } = await attachmentRes.json();
+
+  await discordSdk.commands.openShareMomentDialog({ mediaUrl: attachment.url });
+}
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -151,6 +189,13 @@ const Profile = () => {
               ></div>
             </div>
           </div>
+
+          <button
+  onClick={() => shareScoreToDiscord({ points: profile.totalScore, rank: profile.myRank, name: profile.globalName })}
+  className="w-full py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-pink-500 to-purple-500 mt-4"
+>
+  📤 Share my score
+</button>
 
         </div>
       </div>

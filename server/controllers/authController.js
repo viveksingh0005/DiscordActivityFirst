@@ -100,6 +100,7 @@ export const discordLogin = async (req, res) => {
     res.json({
       message: "Discord login successful",
       token,
+       access_token: tokenData.access_token,
       user: {
         id: user._id,
         discordId: user.discordId,
