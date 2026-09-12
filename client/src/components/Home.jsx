@@ -39,7 +39,7 @@ const Home = () => {
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md overflow-hidden">
                                 {user.avatar ? (
                                     <img
-                                        src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+                                        src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`}
                                         alt="avatar"
                                         className="w-full h-full object-cover"
                                     />

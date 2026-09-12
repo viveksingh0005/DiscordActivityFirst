@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const RandomNumberGenerator = () => {
   // =========================
   // GAME STATE
   // =========================
-
+  const navigate = useNavigate();
   const [numbers, setNumbers] = useState([]);
   const [letters, setLetters] = useState([]);
 
@@ -391,8 +391,8 @@ const RandomNumberGenerator = () => {
 
       <div className="text-center mb-6">
 
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          Memory Game
+        <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          Alpha Memory
         </h1>
 
         <p className="text-gray-600 text-lg">
@@ -461,6 +461,13 @@ const RandomNumberGenerator = () => {
         </div>
 
       )}
+
+       <button
+            onClick={() => navigate("/")}
+            className="text-purple-200/70 hover:text-white transition mb-3 text-sm flex items-center gap-1"
+          >
+            ← Back
+          </button>
 
 
       {/* =========================
