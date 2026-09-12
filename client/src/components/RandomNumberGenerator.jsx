@@ -52,7 +52,7 @@ const RandomNumberGenerator = () => {
           return;
         }
 
-        const response = await fetch("/api/game/start", {
+        const response = await fetch("/.proxy/api/game/start", {
           method: "POST",
 
           headers: {
@@ -208,7 +208,7 @@ const RandomNumberGenerator = () => {
       // =========================
 
       const response = await fetch(
-        "/api/game/answer",
+        "/.proxy/api/game/answer",
         {
           method: "POST",
 

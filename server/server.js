@@ -12,8 +12,27 @@ const app = express();
 // Middleware
 app.use(
   cors({
-     
-    origin: "https://client-ux1k.vercel.app",
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://client-ux1k.vercel.app",
+        /\.discordsays\.com$/, // Discord ke saare sandboxed domains
+      ];
+
+      // agar origin undefined hai (jaise server-to-server call), allow kar dein
+      if (!origin) return callback(null, true);
+
+      const isAllowed = allowedOrigins.some((allowed) =>
+        typeof allowed === "string"
+          ? allowed === origin
+          : allowed.test(origin)
+      );
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
