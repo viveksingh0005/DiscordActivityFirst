@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 const RandomNumberGenerator = () => {
   // =========================
   // GAME STATE
   // =========================
-   const navigate = useNavigate();
+
   const [numbers, setNumbers] = useState([]);
   const [letters, setLetters] = useState([]);
 
@@ -34,75 +34,76 @@ const RandomNumberGenerator = () => {
 
 
   // =========================
-  // START GAME
+  // START GAME (standalone function so restartGame can call it too)
   // =========================
 
-  useEffect(() => {
-    const startGame = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const startGame = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
-        // Make sure user is logged in
-        if (!token) {
-          setError("You are not logged in.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch("/.proxy/api/game/start", {
-          method: "POST",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        console.log("Game started:", data);
-
-        if (!response.ok) {
-          throw new Error(
-            data.message || "Failed to start game"
-          );
-        }
-
-        // =========================
-        // SAVE BACKEND GAME DATA
-        // =========================
-
-        setGameId(data.gameId);
-
-        setNumbers(data.numbers);
-
-        setTargetSum(data.targetSum);
-
-        // A-P
-        setLetters(
-          "ABCDEFGHIJKLMNOP".split("")
-        );
-
+      // Make sure user is logged in
+      if (!token) {
+        setError("You are not logged in.");
         setLoading(false);
-
-      } catch (error) {
-        console.error(
-          "Start game error:",
-          error
-        );
-
-        setError(
-          error.message ||
-          "Failed to start game"
-        );
-
-        setLoading(false);
+        return;
       }
-    };
 
+      const response = await fetch("/.proxy/api/game/start", {
+        method: "POST",
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      console.log("Game started:", data);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to start game"
+        );
+      }
+
+      // =========================
+      // SAVE BACKEND GAME DATA
+      // =========================
+
+      setGameId(data.gameId);
+
+      setNumbers(data.numbers);
+
+      setTargetSum(data.targetSum);
+
+      // A-P
+      setLetters(
+        "ABCDEFGHIJKLMNOP".split("")
+      );
+
+      setLoading(false);
+
+    } catch (error) {
+      console.error(
+        "Start game error:",
+        error
+      );
+
+      setError(
+        error.message ||
+        "Failed to start game"
+      );
+
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     startGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -292,10 +293,21 @@ const RandomNumberGenerator = () => {
   // =========================
   // RESTART GAME
   // =========================
+  // No page reload, no routing needed — just reset local state
+  // and fetch a brand new game from the backend.
 
- const restartGame = () => {
-    navigate("/game", { replace: true }); // wapas isi route pe, fresh mount ke liye
-    window.location.hash = Date.now(); // agar zaroorat pade to
+  const restartGame = () => {
+    setIsHidden(false);
+    setTargetSum(null);
+    setSelected([]);
+    setGameResult(null);
+    setGameId(null);
+    setPoints(null);
+    setError("");
+    setTimeLeft(10);
+    setNumbers([]);
+    setLetters([]);
+    startGame();
   };
 
 
