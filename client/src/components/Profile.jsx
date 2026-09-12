@@ -18,7 +18,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await fetch("/.proxy/api/game/profile", {
+        const response = await fetch("/.proxy/api/user/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

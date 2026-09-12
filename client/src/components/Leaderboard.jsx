@@ -18,7 +18,7 @@ const Leaderboard = () => {
           return;
         }
 
-        const response = await fetch("/.proxy/api/game/leaderboard", {
+        const response = await fetch("/.proxy/api/user/leaderboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
