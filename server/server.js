@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import gameRoutes from "./routes/gameRoutes.js"
+import userRoutes from "./routes/userRoutes.js"
 dotenv.config();
 
 const app = express();
@@ -41,7 +42,7 @@ app.use(express.json());
 // Routes
 app.use("/auth", authRoutes);
 app.use("/game", gameRoutes);
-
+app.use("/user", userRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.json({
