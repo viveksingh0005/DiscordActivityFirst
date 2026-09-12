@@ -55,7 +55,7 @@ export const initializeDiscord = async () => {
     // STEP 8
     console.log("STEP 8: Calling backend");
 
-    const response = await fetch("/api/auth/discord", {
+    const response = await fetch("/.proxy/api/auth/discord", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
