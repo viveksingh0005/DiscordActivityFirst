@@ -1,4 +1,6 @@
+import { Routes, Route, useNavigate } from "react-router-dom";
 import RandomNumberGenerator from "./components/RandomNumberGenerator";
+import Home from "./components/Home";
 import { useEffect, useState } from "react";
 import { initializeDiscord } from "./discordSdk";
 
@@ -8,9 +10,7 @@ function App() {
 
   useEffect(() => {
     initializeDiscord()
-      .then(() => {
-        setAuthReady(true);
-      })
+      .then(() => setAuthReady(true))
       .catch((err) => {
         console.error("Discord init failed:", err);
         setAuthError(err.message || "Failed to connect to Discord");
@@ -34,7 +34,12 @@ function App() {
     );
   }
 
-  return <RandomNumberGenerator />;
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/game" element={<RandomNumberGenerator />} />
+    </Routes>
+  );
 }
 
 export default App;

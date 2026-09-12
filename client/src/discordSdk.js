@@ -86,6 +86,7 @@ export const initializeDiscord = async () => {
     // STEP 12
     if (data.token) {
       localStorage.setItem("token", data.token);
+       localStorage.setItem("user", JSON.stringify(data.user));
 
       console.log("STEP 12: JWT SAVED SUCCESSFULLY");
     } else {
