@@ -704,7 +704,15 @@ const RandomNumberGenerator = () => {
                       Total Points: {points}
                     </div>
 
+
+
                   )}
+
+                  <button onClick={() => setShowOriginal((prev) => !prev)}
+                    className="px-6 py-2 bg-white text-indigo-600 border border-indigo-300 rounded-lg font-medium hover:bg-indigo-50 transition mb-3 mr-2"
+                  >
+                    {showOriginal ? "🙈 Hide Numbers" : "👀 See Original Numbers"}
+                  </button>
 
                 </div>
 
