@@ -3,7 +3,7 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
 const discordSdk = new DiscordSDK(clientId);
 
-let accessToken = null; // kept in memory for the SPA's lifetime
+let accessToken = null;
 export const getAccessToken = () => accessToken;
 
 export const initializeDiscord = async () => {
@@ -35,12 +35,11 @@ export const initializeDiscord = async () => {
       localStorage.setItem("user", JSON.stringify(data.user));
     }
 
-    // NEW: complete the SDK connection + keep the access_token for later use
     if (data.access_token) {
       accessToken = data.access_token;
       await discordSdk.commands.authenticate({ access_token: data.access_token });
     } else {
-      console.error("Backend did not return access_token — share features won't work");
+      console.error("Backend did not return access_token — share feature won't work");
     }
 
     return discordSdk;
