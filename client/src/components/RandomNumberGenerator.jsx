@@ -290,11 +290,7 @@ const RandomNumberGenerator = () => {
   };
 
 
-  // =========================
-  // RESTART GAME
-  // =========================
-  // No page reload, no routing needed — just reset local state
-  // and fetch a brand new game from the backend.
+
 
   const restartGame = () => {
     setIsHidden(false);
@@ -405,7 +401,7 @@ const RandomNumberGenerator = () => {
         </p>
  <button
           onClick={() => navigate("/")}
-          className="px-6 py-2 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition"
+          className="px-6 py-2 rounded-xl text-gray-600 hover:bg-white/20 transition"
         >
           ← Back to Home
         </button>
@@ -467,12 +463,7 @@ const RandomNumberGenerator = () => {
 
       )}
 
-       <button
-            onClick={() => navigate("/")}
-            className="text-purple-200/70 hover:text-white transition mb-3 text-sm flex items-center gap-1"
-          >
-            ← Back
-          </button>
+      
 
 
       {/* =========================
