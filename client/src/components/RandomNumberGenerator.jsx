@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const RandomNumberGenerator = () => {
   // =========================
   // GAME STATE
   // =========================
-
+   const navigate = useNavigate();
   const [numbers, setNumbers] = useState([]);
   const [letters, setLetters] = useState([]);
 
@@ -293,8 +293,9 @@ const RandomNumberGenerator = () => {
   // RESTART GAME
   // =========================
 
-  const restartGame = () => {
-    window.location.reload();
+ const restartGame = () => {
+    navigate("/game", { replace: true }); // wapas isi route pe, fresh mount ke liye
+    window.location.hash = Date.now(); // agar zaroorat pade to
   };
 
 
