@@ -8,7 +8,7 @@ const RandomNumberGenerator = () => {
   const [numbers, setNumbers] = useState([]);
   const [letters, setLetters] = useState([]);
 
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(20);
   const [isHidden, setIsHidden] = useState(false);
 
   const [targetSum, setTargetSum] = useState(null);
@@ -16,7 +16,7 @@ const RandomNumberGenerator = () => {
   const [selected, setSelected] = useState([]);
 
   const [gameResult, setGameResult] = useState(null);
-
+  const [showOriginal, setShowOriginal] = useState(false);
   // Backend game ID
   const [gameId, setGameId] = useState(null);
 
@@ -300,9 +300,10 @@ const RandomNumberGenerator = () => {
     setGameId(null);
     setPoints(null);
     setError("");
-    setTimeLeft(10);
+    setTimeLeft(20);
     setNumbers([]);
     setLetters([]);
+    setShowOriginal(false);
     startGame();
   };
 
@@ -399,7 +400,7 @@ const RandomNumberGenerator = () => {
           }
 
         </p>
- <button
+        <button
           onClick={() => navigate("/")}
           className="px-6 py-2 rounded-xl text-gray-600 hover:bg-white/20 transition"
         >
@@ -441,10 +442,9 @@ const RandomNumberGenerator = () => {
               transition-all
               duration-300
 
-              ${
-                timeLeft <= 3
-                  ? "border-red-400 bg-red-50 text-red-600 scale-110"
-                  : "border-indigo-400 bg-white text-indigo-600"
+              ${timeLeft <= 3
+                ? "border-red-400 bg-red-50 text-red-600 scale-110"
+                : "border-indigo-400 bg-white text-indigo-600"
               }
             `}
           >
@@ -463,7 +463,7 @@ const RandomNumberGenerator = () => {
 
       )}
 
-      
+
 
 
       {/* =========================
@@ -568,23 +568,21 @@ const RandomNumberGenerator = () => {
                   transition-all
                   duration-300
 
-                  ${
-                    isHidden
-                      ? "cursor-pointer hover:scale-105 active:scale-95"
-                      : ""
+                  ${isHidden
+                    ? "cursor-pointer hover:scale-105 active:scale-95"
+                    : ""
                   }
 
-                  ${
-                    isHidden
-                      ? isSelected
-                        ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white ring-4 ring-yellow-300 scale-105"
+                  ${isHidden
+                    ? isSelected
+                      ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white ring-4 ring-yellow-300 scale-105"
 
-                        : isEven
+                      : isEven
                         ? "bg-gradient-to-br from-emerald-400 to-teal-500 text-white"
 
                         : "bg-gradient-to-br from-white to-gray-50 text-teal-700 border border-teal-200"
 
-                      : isEven
+                    : isEven
                       ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
 
                       : "bg-gradient-to-br from-white to-gray-50 text-indigo-700 border border-indigo-100"
@@ -593,7 +591,7 @@ const RandomNumberGenerator = () => {
               >
 
                 {isHidden
-                  ? letters[index]
+                  ? (showOriginal ? numbers[index] : letters[index])
                   : numbers[index]
                 }
 
@@ -635,13 +633,12 @@ const RandomNumberGenerator = () => {
                 shadow-lg
                 transition-all
 
-                ${
-                  selected.length === 0 ||
+                ${selected.length === 0 ||
                   checkingAnswer
 
-                    ? "bg-gray-300 cursor-not-allowed"
+                  ? "bg-gray-300 cursor-not-allowed"
 
-                    : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:scale-105"
+                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:scale-105"
                 }
               `}
             >
@@ -680,6 +677,12 @@ const RandomNumberGenerator = () => {
                     </div>
 
                   )}
+
+                  <button onClick={() => setShowOriginal((prev) => !prev)}
+                    className="px-6 py-2 bg-white text-indigo-600 border border-indigo-300 rounded-lg font-medium hover:bg-indigo-50 transition mb-3 mr-2"
+                  >
+                    {showOriginal ? "🙈 Hide Numbers" : "👀 See Original Numbers"}
+                  </button>
 
                 </div>
 

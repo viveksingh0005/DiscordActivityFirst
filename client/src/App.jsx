@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { initializeDiscord } from "./discordSdk";
 import Profile from "./components/Profile";
 import Leaderboard from "./components/Leaderboard";
-import Terms from "./footer/Terms";
-import Privacy from "./footer/Privacy";
+
 function App() {
   const [authReady, setAuthReady] = useState(false);
   const [authError, setAuthError] = useState(null);
@@ -43,8 +42,7 @@ function App() {
       <Route path="/game" element={<RandomNumberGenerator />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
+     
     </Routes>
   );
 }

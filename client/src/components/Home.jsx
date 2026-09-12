@@ -90,23 +90,7 @@ const Home = () => {
 
           {/* Footer */}
           <div className="mt-10 pt-6 border-t border-white/10">
-            <div className="flex items-center justify-center gap-4 text-sm">
-              <button
-                onClick={() => navigate("/terms")}
-                className="text-purple-200/60 hover:text-purple-100 transition-colors"
-              >
-                Terms of Service
-              </button>
-              
-              <span className="text-white/20">•</span>
-              
-              <button
-                onClick={() => navigate("/privacy")}
-                className="text-purple-200/60 hover:text-purple-100 transition-colors"
-              >
-                Privacy Policy
-              </button>
-            </div>
+           
             
             <p className="text-center text-purple-200/40 text-xs mt-3">
               © 2026 Alpha Memory
