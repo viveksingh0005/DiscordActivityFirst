@@ -3,7 +3,8 @@ import RandomNumberGenerator from "./components/RandomNumberGenerator";
 import Home from "./components/Home";
 import { useEffect, useState } from "react";
 import { initializeDiscord } from "./discordSdk";
-
+import Profile from "./components/Profile";
+import Leaderboard from "./components/Leaderboard";
 function App() {
   const [authReady, setAuthReady] = useState(false);
   const [authError, setAuthError] = useState(null);
@@ -38,6 +39,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/game" element={<RandomNumberGenerator />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
     </Routes>
   );
 }
