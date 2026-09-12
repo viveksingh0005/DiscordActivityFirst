@@ -4,7 +4,7 @@ export const startGame = async (req, res) => {
   try {
     // Generate 16 random numbers
     const numbers = Array.from(
-      { length: 16 },
+      { length: 9 },
       () => Math.floor(Math.random() * 20) + 1
     );
 
@@ -14,7 +14,7 @@ export const startGame = async (req, res) => {
     const targetIndexes = [];
 
     while (targetIndexes.length < count) {
-      const index = Math.floor(Math.random() * 16);
+      const index = Math.floor(Math.random() * 9);
 
       if (!targetIndexes.includes(index)) {
         targetIndexes.push(index);
@@ -142,37 +142,38 @@ export const submitAnswer = async (req, res) => {
     });
   }
 };
-export const winGame = async (req, res) => {
-  try {
 
-    // User comes from authMiddleware
-    const user = req.user;
+// export const winGame = async (req, res) => {
+//   try {
 
-    // Give 10 points
-    user.points += 10;
+//     // User comes from authMiddleware
+//     const user = req.user;
 
-    // Increase games won
-    user.gamesWon += 1;
+//     // Give 10 points
+//     user.points += 10;
 
-    // Increase games played
-    user.gamesPlayed += 1;
+//     // Increase games won
+//     user.gamesWon += 1;
 
-    // Save to MongoDB
-    await user.save();
+//     // Increase games played
+//     user.gamesPlayed += 1;
 
-    res.json({
-      message: "Game won!",
-      points: user.points,
-      gamesPlayed: user.gamesPlayed,
-      gamesWon: user.gamesWon,
-    });
+//     // Save to MongoDB
+//     await user.save();
 
-  } catch (error) {
+//     res.json({
+//       message: "Game won!",
+//       points: user.points,
+//       gamesPlayed: user.gamesPlayed,
+//       gamesWon: user.gamesWon,
+//     });
 
-    console.error("Win game error:", error);
+//   } catch (error) {
 
-    res.status(500).json({
-      message: "Failed to update game result",
-    });
-  }
-};
+//     console.error("Win game error:", error);
+
+//     res.status(500).json({
+//       message: "Failed to update game result",
+//     });
+//   }
+// };

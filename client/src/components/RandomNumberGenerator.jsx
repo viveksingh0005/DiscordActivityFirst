@@ -81,7 +81,7 @@ const RandomNumberGenerator = () => {
 
       // A-P
       setLetters(
-        "ABCDEFGHIJKLMNOP".split("")
+        "ABCDEFGHI".split("")
       );
 
       setLoading(false);
@@ -536,16 +536,16 @@ const RandomNumberGenerator = () => {
 
       <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-2xl border border-white/50">
 
-        <div className="grid grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
 
           {Array.from({
-            length: 16
+            length: 9
           }).map((_, index) => {
 
             const isEven =
               (
-                Math.floor(index / 4) +
-                (index % 4)
+                Math.floor(index / 3) +
+                (index % 3)
               ) % 2 === 0;
 
             const isSelected =
