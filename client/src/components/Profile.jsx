@@ -1,42 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import discordSdk, { getAccessToken } from "../discordSdk"; // ⚠️ path apne project ke hisaab se check karein
-import { Permissions, PermissionUtils } from "@discord/embedded-app-sdk";
-async function generateShareCardBlob({ points, rank, name }) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 600;
-  canvas.height = 315;
-  const ctx = canvas.getContext("2d");
 
-  const grad = ctx.createLinearGradient(0, 0, 600, 315);
-  grad.addColorStop(0, "#3730a3");
-  grad.addColorStop(1, "#a21caf");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 600, 315);
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 28px sans-serif";
-  ctx.fillText(`${name}'s Score`, 40, 70);
-
-  ctx.font = "bold 64px sans-serif";
-  ctx.fillText(`${points} pts`, 40, 160);
-
-  ctx.font = "32px sans-serif";
-  ctx.fillText(rank ? `Rank #${rank}` : "Alpha Memory", 40, 210);
-
-  ctx.font = "20px sans-serif";
-  ctx.fillStyle = "#e9d5ff";
-  ctx.fillText("Alpha Memory — can you beat me?", 40, 270);
-
-  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-}
 
 const Profile = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [shareError, setShareError] = useState("");
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -76,53 +48,7 @@ const Profile = () => {
       ? Math.round((profile.gamesWon / profile.gamesPlayed) * 100)
       : 0;
 
-  async function shareScoreToDiscord({ points, rank, name }) {
-    const accessToken = getAccessToken();
-    if (!accessToken) {
-      setShareError("Not connected to Discord yet.");
-      return;
-    }
-
-    try {
-      const blob = await generateShareCardBlob({ points, rank, name });
-      const imageFile = new File([blob], "score.png", { type: "image/png" });
-      const body = new FormData();
-      body.append("file", imageFile);
-
-      const attachmentRes = await fetch(
-        `https://discord.com/api/applications/${import.meta.env.VITE_DISCORD_CLIENT_ID}/attachment`,
-        { method: "POST", headers: { Authorization: `Bearer ${accessToken}` }, body }
-      );
-      const attachmentJson = await attachmentRes.json();
-
-      await discordSdk.commands.openShareMomentDialog({ mediaUrl: attachmentJson.attachment.url });
-      setShareError("");
-    } catch (err) {
-      console.error("Share error:", err);
-      setShareError("Couldn't share right now. Try again.");
-    }
-  }
-
-  async function shareActivityInvite() {
-  try {
-    // Pehle check karein ki current channel mein invite banane ki permission hai ya nahi
-    const { permissions } = await discordSdk.commands.getChannelPermissions();
-
-    if (!PermissionUtils.can(Permissions.CREATE_INSTANT_INVITE, permissions)) {
-      setShareError("You don't have permission to invite here.");
-      return;
-    }
-
-    // Discord ka native invite dialog kholein
-    await discordSdk.commands.openInviteDialog();
-
-    setShareError("");
-
-  } catch (err) {
-    console.error("Invite dialog error:", err);
-    setShareError("Couldn't open invite — make sure you're in a server channel.");
-  }
-}
+  
 
   if (loading) {
     return (
@@ -221,13 +147,6 @@ const Profile = () => {
           >
             📤 Share my score
           </button>
-
-          <button
-  onClick={shareActivityInvite}
-  className="w-full py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-indigo-500 to-blue-500 mt-3"
->
-  🎮 Invite Others to Play
-</button>
 
           {shareError && (
             <p className="text-red-300 text-sm text-center mt-2">{shareError}</p>
