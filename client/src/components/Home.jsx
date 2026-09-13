@@ -36,27 +36,32 @@ const Home = () => {
                     }}
                 >
                     {/* Brand mark — reuses the same tile colors as the app icon */}
-                    <div className="flex gap-2 mb-4" aria-hidden="true">
-                        {[
-                            { n: 7, bg: "#6366F1" },
-                            { n: 14, bg: "#A855F7" },
-                            { n: 3, bg: "#EC4899" },
-                        ].map((t) => (
-                            <div
-                                key={t.n}
-                                className="flex items-center justify-center rounded-md font-bold text-white"
-                                style={{
-                                    backgroundColor: t.bg,
-                                    width: "clamp(28px, 8vw, 36px)",
-                                    height: "clamp(28px, 8vw, 36px)",
-                                    fontFamily: "'JetBrains Mono', monospace",
-                                    fontSize: "clamp(0.7rem, 2.5vw, 0.85rem)",
-                                }}
-                            >
-                                {t.n}
-                            </div>
-                        ))}
-                    </div>
+                    <div
+    className="grid grid-cols-2 mb-4"
+    style={{ gap: "clamp(6px, 3cqi, 10px)" }}
+    aria-hidden="true"
+>
+    {[
+        { n: 7, bg: "#6366F1" },
+        { n: 14, bg: "#A855F7" },
+        { n: 9, bg: "#818CF8" },
+        { n: 3, bg: "#EC4899" },
+    ].map((t) => (
+        <div
+            key={t.n}
+            className="flex items-center justify-center rounded-md font-bold text-white"
+            style={{
+                backgroundColor: t.bg,
+                width: "clamp(24px, 11cqi, 36px)",
+                height: "clamp(24px, 11cqi, 36px)",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "clamp(0.6rem, 4cqi, 0.8rem)",
+            }}
+        >
+            {t.n}
+        </div>
+    ))}
+</div>
 
                     {/* Wordmark */}
                     <h1
@@ -70,15 +75,7 @@ const Home = () => {
                     >
                         Alpha Memory
                     </h1>
-                    <p
-                        className="text-center mt-2 mb-6"
-                        style={{
-                            color: "#A79BD1",
-                            fontSize: "clamp(0.8rem, 3vw, 0.95rem)",
-                        }}
-                    >
-                        Remember the numbers, beat the sum.
-                    </p>
+                   
 
                     {/* User row — inline, no boxed card */}
                     {user && (
