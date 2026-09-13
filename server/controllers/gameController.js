@@ -143,37 +143,3 @@ export const submitAnswer = async (req, res) => {
   }
 };
 
-// export const winGame = async (req, res) => {
-//   try {
-
-//     // User comes from authMiddleware
-//     const user = req.user;
-
-//     // Give 10 points
-//     user.points += 10;
-
-//     // Increase games won
-//     user.gamesWon += 1;
-
-//     // Increase games played
-//     user.gamesPlayed += 1;
-
-//     // Save to MongoDB
-//     await user.save();
-
-//     res.json({
-//       message: "Game won!",
-//       points: user.points,
-//       gamesPlayed: user.gamesPlayed,
-//       gamesWon: user.gamesWon,
-//     });
-
-//   } catch (error) {
-
-//     console.error("Win game error:", error);
-
-//     res.status(500).json({
-//       message: "Failed to update game result",
-//     });
-//   }
-// };
