@@ -30,11 +30,45 @@ function App() {
 
   if (!authReady) {
     return (
-      <div style={{ textAlign: "center", padding: "40px" }}>
-        <p>Connecting to Discord...</p>
+      <div
+        className="min-h-[100dvh] w-full flex items-center justify-center"
+        style={{
+          backgroundColor: "#120E27",
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+        }}
+      >
+        <div className="flex flex-col items-center">
+          <div className="grid grid-cols-2 gap-2 mb-5" aria-hidden="true">
+            {["#6366F1", "#A855F7", "#818CF8", "#EC4899"].map((bg, i) => (
+              <div
+                key={i}
+                className="rounded-md motion-safe:animate-pulse"
+                style={{
+                  backgroundColor: bg,
+                  width: "30px",
+                  height: "30px",
+                  animationDelay: `${i * 150}ms`,
+                  animationDuration: "1.1s",
+                }}
+              />
+            ))}
+          </div>
+          <p
+            style={{
+              color: "#A79BD1",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.8rem",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Connecting to Discord
+          </p>
+        </div>
       </div>
     );
-  }
+}
 
   return (
     <Routes>
