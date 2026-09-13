@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import discordSdk, { getAccessToken } from "../discordSdk"; // ⚠️ path apne project ke hisaab se check karein
-
+import { Permissions, PermissionUtils } from "@discord/embedded-app-sdk";
 async function generateShareCardBlob({ points, rank, name }) {
   const canvas = document.createElement("canvas");
   canvas.width = 600;
@@ -103,6 +103,27 @@ const Profile = () => {
     }
   }
 
+  async function shareActivityInvite() {
+  try {
+    // Pehle check karein ki current channel mein invite banane ki permission hai ya nahi
+    const { permissions } = await discordSdk.commands.getChannelPermissions();
+
+    if (!PermissionUtils.can(Permissions.CREATE_INSTANT_INVITE, permissions)) {
+      setShareError("You don't have permission to invite here.");
+      return;
+    }
+
+    // Discord ka native invite dialog kholein
+    await discordSdk.commands.openInviteDialog();
+
+    setShareError("");
+
+  } catch (err) {
+    console.error("Invite dialog error:", err);
+    setShareError("Couldn't open invite — make sure you're in a server channel.");
+  }
+}
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-fuchsia-900 flex items-center justify-center">
@@ -200,6 +221,13 @@ const Profile = () => {
           >
             📤 Share my score
           </button>
+
+          <button
+  onClick={shareActivityInvite}
+  className="w-full py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-indigo-500 to-blue-500 mt-3"
+>
+  🎮 Invite Others to Play
+</button>
 
           {shareError && (
             <p className="text-red-300 text-sm text-center mt-2">{shareError}</p>

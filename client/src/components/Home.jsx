@@ -24,7 +24,7 @@ const Home = () => {
                 <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl p-8 md:p-10">
 
                     {/* Header */}
-                    <div className="text-center mb-10">
+                    <div className="text-center mb-6">
                         <p className="text-purple-200/80 text-sm md:text-base">
                             Alpha Memory
                         </p>

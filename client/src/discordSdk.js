@@ -17,7 +17,7 @@ export const initializeDiscord = async () => {
       response_type: "code",
       state: "",
       prompt: "none",
-      scope: ["identify"],
+      scope: ["identify", "guilds", "guilds.members.read"],
     });
 
     if (!code) throw new Error("Discord did not return an authorization code");
