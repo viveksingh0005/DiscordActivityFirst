@@ -126,7 +126,16 @@ const Home = () => {
                         >
                             Play now
                         </button>
-                        <button onClick={() => navigate("/lobby")}  >
+                        <button  onClick={() => navigate("/lobby")}
+                            className="w-full rounded-lg font-semibold transition-transform motion-safe:active:translate-x-[3px] motion-safe:active:translate-y-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                            style={{
+                                backgroundColor: "#241D45",
+                                color: "#F4F2FF",
+                                border: "1px solid #322A57",
+                                padding: "clamp(0.75rem, 3.5vw, 1rem)",
+                                fontSize: "clamp(0.95rem, 3.5vw, 1.05rem)",
+                                boxShadow: "4px 4px 0 0 rgba(8,5,20,0.4)",
+                            }}  >
                             Lobby
                         </button>
 
