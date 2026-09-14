@@ -126,6 +126,9 @@ const Home = () => {
                         >
                             Play now
                         </button>
+                        <button onClick={() => navigate("/lobby")}  >
+                            Lobby
+                        </button>
 
                         <button
                             onClick={() => navigate("/profile")}
