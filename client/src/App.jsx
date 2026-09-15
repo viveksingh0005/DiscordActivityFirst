@@ -1,20 +1,30 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
 import RandomNumberGenerator from "./components/RandomNumberGenerator";
 import Home from "./components/Home";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { initializeDiscord } from "./discordSdk";
 import Profile from "./components/Profile";
 import Leaderboard from "./components/Leaderboard";
 import Lobby from "./components/Lobby";
 import { RoomProvider } from "./context/RoomContext";
+
 console.error("🔥🔥🔥 APP.JSX LOADED - BUILD CHECK 🔥🔥🔥");
+
 function App() {
   const [authReady, setAuthReady] = useState(false);
   const [authError, setAuthError] = useState(null);
+  const [discordData, setDiscordData] = useState({ instanceId: null, discordUser: null });
+  const hasInitialized = useRef(false); // 👈 naya — duplicate call rokne ke liye
 
   useEffect(() => {
+    if (hasInitialized.current) return; // 👈 naya — agar pehle hi chal chuka hai, dobara mat chalao
+    hasInitialized.current = true;
+
     initializeDiscord()
-      .then(() => setAuthReady(true))
+      .then(({ instanceId, discordUser }) => { // 👈 badla — ab data capture kar rahe hain
+        setDiscordData({ instanceId, discordUser });
+        setAuthReady(true);
+      })
       .catch((err) => {
         console.error("Discord init failed:", err);
         setAuthError(err.message || "Failed to connect to Discord");
@@ -73,14 +83,13 @@ function App() {
   }
 
   return (
-    <RoomProvider>
+    <RoomProvider instanceId={discordData.instanceId} discordUser={discordData.discordUser}> {/* 👈 badla */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/game" element={<RandomNumberGenerator />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/lobby" element={<Lobby />} />
-
       </Routes>
     </RoomProvider>
   );

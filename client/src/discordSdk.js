@@ -1,5 +1,4 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
-import { connectSocket } from "./socket/socket"; // apna sahi path daalo
 
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
 const discordSdk = new DiscordSDK(clientId);
@@ -43,17 +42,8 @@ export const initializeDiscord = async () => {
       console.error("Backend did not return access_token — share feature won't work");
     }
 
-    // 👇 YEH NAYA HAI — instanceId nikaalo aur socket connect karo
     const instanceId = discordSdk.instanceId;
-   console.log("[initializeDiscord] FULL response data:", data);
-console.log("[initializeDiscord] instanceId:", instanceId);
-console.log("[initializeDiscord] data.user:", data.user);
-
-    if (instanceId && data.user) {
-      connectSocket({ instanceId, discordUser: data.user });
-    } else {
-      console.error("Missing instanceId or user — socket not connected!", { instanceId, user: data.user });
-    }
+    console.log("[initializeDiscord] instanceId:", instanceId, "user:", data.user);
 
     return { discordSdk, instanceId, discordUser: data.user };
   } catch (error) {
