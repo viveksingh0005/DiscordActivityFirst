@@ -7,7 +7,7 @@ import Profile from "./components/Profile";
 import Leaderboard from "./components/Leaderboard";
 import Lobby from "./components/Lobby";
 import { RoomProvider } from "./context/RoomContext";
-
+console.error("🔥🔥🔥 APP.JSX LOADED - BUILD CHECK 🔥🔥🔥");
 function App() {
   const [authReady, setAuthReady] = useState(false);
   const [authError, setAuthError] = useState(null);
