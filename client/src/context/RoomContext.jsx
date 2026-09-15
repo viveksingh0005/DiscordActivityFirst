@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { socket } from "../socket/socket";
+import { socket, connectSocket, disconnectSocket } from "../socket/socket";
+import { useDiscordSdk } from "../hooks/useDiscordSdk"; // 👈 apne actual hook/context ka import path yahan lagao
 
 const RoomContext = createContext(null);
 
 export const RoomProvider = ({ children }) => {
+  // 👈 yahan se instanceId aur discordUser milna chahiye — apne hook ke hisaab se badlo
+  const { instanceId, discordUser } = useDiscordSdk();
+
   const [room, setRoom] = useState(null);
   const [players, setPlayers] = useState([]);
   const [spectators, setSpectators] = useState([]);
@@ -11,7 +15,14 @@ export const RoomProvider = ({ children }) => {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    console.log("[RoomProvider] mounted. socket.connected =", socket.connected, "socket:", socket);
+    // Jab tak Discord se instanceId aur discordUser nahi milte, connect mat karo
+    if (!instanceId || !discordUser) {
+      console.log("[RoomProvider] waiting for Discord data:", { instanceId, discordUser });
+      return;
+    }
+
+    console.log("[RoomProvider] connecting with:", { instanceId, discordUser });
+    connectSocket({ instanceId, discordUser });
 
     const onConnect = () => {
       console.log("[socket] connected:", socket.id);
@@ -50,8 +61,9 @@ export const RoomProvider = ({ children }) => {
       socket.off("roomUpdate", onRoomUpdate);
       socket.off("sessionUpdate", onSessionUpdate);
       socket.off("disconnect", onDisconnect);
+      disconnectSocket();
     };
-  }, []);
+  }, [instanceId, discordUser]);
 
   const value = { room, players, spectators, isHost, session };
 
