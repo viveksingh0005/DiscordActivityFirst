@@ -7,7 +7,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import gameRoutes from "./routes/gameRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import { initSocket } from "./sockets/initSocket.js"; // 👈 apna sahi path daalo
+import { initSocket } from "./sockets/index.js"; // 👈 apna sahi path daalo
 
 dotenv.config();
 
