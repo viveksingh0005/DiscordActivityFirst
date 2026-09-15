@@ -6,6 +6,7 @@ import { initializeDiscord } from "./discordSdk";
 import Profile from "./components/Profile";
 import Leaderboard from "./components/Leaderboard";
 import Lobby from "./components/Lobby";
+import { RoomProvider } from "./context/RoomContext";
 
 function App() {
   const [authReady, setAuthReady] = useState(false);
@@ -69,17 +70,19 @@ function App() {
         </div>
       </div>
     );
-}
+  }
 
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/game" element={<RandomNumberGenerator />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/leaderboard" element={<Leaderboard />} />
-      <Route path="/lobby" element={<Lobby />} />
-     
-    </Routes>
+    <RoomProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/game" element={<RandomNumberGenerator />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/lobby" element={<Lobby />} />
+
+      </Routes>
+    </RoomProvider>
   );
 }
 
