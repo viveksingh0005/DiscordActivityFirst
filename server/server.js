@@ -1,11 +1,14 @@
 import express from "express";
+import http from "http"; // 👈 add kiya
 import cors from "cors";
 import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import gameRoutes from "./routes/gameRoutes.js"
-import userRoutes from "./routes/userRoutes.js"
+import gameRoutes from "./routes/gameRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import { initSocket } from "./sockets/initSocket.js"; // 👈 apna sahi path daalo
+
 dotenv.config();
 
 const app = express();
@@ -16,10 +19,9 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "https://client-ux1k.vercel.app",
-        /\.discordsays\.com$/, // Discord ke saare sandboxed domains
+        /\.discordsays\.com$/,
       ];
 
-      // agar origin undefined hai (jaise server-to-server call), allow kar dein
       if (!origin) return callback(null, true);
 
       const isAllowed = allowedOrigins.some((allowed) =>
@@ -43,18 +45,21 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/game", gameRoutes);
 app.use("/user", userRoutes);
-// Test route
+
 app.get("/", (req, res) => {
   res.json({
     message: "Alpha Memory API is running",
   });
 });
 
-// Connect database
 connectDB();
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+// 👇 yeh sabse important change hai
+const httpServer = http.createServer(app); // Express app ko ek raw http server mein wrap kiya
+const io = initSocket(httpServer); // socket.io ko usi server pe attach kiya
+
+httpServer.listen(PORT, () => { // app.listen() ki jagah httpServer.listen()
   console.log(`Server running on port ${PORT}`);
 });
