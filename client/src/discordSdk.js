@@ -45,7 +45,9 @@ export const initializeDiscord = async () => {
 
     // 👇 YEH NAYA HAI — instanceId nikaalo aur socket connect karo
     const instanceId = discordSdk.instanceId;
-    console.log("[initializeDiscord] instanceId:", instanceId, "user:", data.user);
+   console.log("[initializeDiscord] FULL response data:", data);
+console.log("[initializeDiscord] instanceId:", instanceId);
+console.log("[initializeDiscord] data.user:", data.user);
 
     if (instanceId && data.user) {
       connectSocket({ instanceId, discordUser: data.user });
