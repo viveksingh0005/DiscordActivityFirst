@@ -4,10 +4,8 @@ import PlayerList from "./PlayerList";
 
 const Lobby = () => {
   const { room, players, spectators, isHost } = useRoom();
-   console.log("Lobby received context:", context);
+
   const handleStart = () => {
-    // Server owns the actual validation (min 2 players etc.) —
-    // this is just the trigger, not the source of truth
     socket.emit("startSession");
   };
 
