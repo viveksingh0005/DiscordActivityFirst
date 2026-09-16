@@ -5,7 +5,7 @@ import { registerRoomHandlers } from "./roomHandlers.js";
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
     path: "/socketio",
-      
+     transports: ["polling"],  
     cors: {
       origin: process.env.CLIENT_URL || "*",
       credentials: true,
