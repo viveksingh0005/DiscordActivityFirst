@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { registerRoomHandlers } from "./roomHandlers.js";
-import { registerPatternGameHandlers } from "./patternGameHandlers.js";
+
 
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {

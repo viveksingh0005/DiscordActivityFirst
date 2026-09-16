@@ -6,21 +6,18 @@ import {
 } from "../services/roomService.js";
 import Room from "../models/Room.js";
 
-const GRACE_PERIOD_MS = 45000; // 45s to reconnect before we actually remove someone
+const GRACE_PERIOD_MS = 45000; 
 const MIN_PLAYERS_TO_START = 2;
 
-// Tracks pending removal timers so a reconnect can cancel them.
-// Keyed by discordId — fine for a single-process server; if you scale to
-// multiple Node instances later, this needs to move to Redis or similar.
+
 const pendingRemovals = new Map();
 
 export const registerRoomHandlers = (io, socket) => {
   const { instanceId, discordId, username, avatar } = socket.data;
 
-  // Fires once, right after connection — joins or creates the room, broadcasts state
   const joinRoom = async () => {
-    // If this discordId had a pending removal timer (grace period from a previous
-    // disconnect), cancel it — they're back
+   
+   
     if (pendingRemovals.has(discordId)) {
       clearTimeout(pendingRemovals.get(discordId));
       pendingRemovals.delete(discordId);
