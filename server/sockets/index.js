@@ -38,6 +38,11 @@ export const initSocket = (httpServer) => {
     });
   });
 
+  
+  io.engine.on("initial_headers", (headers, req) => {
+    console.log("[engine.io] initial_headers for:", req.url, "| origin:", req.headers.origin);
+  });
+
   io.use((socket, next) => {
     const { instanceId, discordId, username } = socket.handshake.auth || {};
 
