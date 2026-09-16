@@ -6,7 +6,7 @@ const SOCKET_URL = window.location.origin;
 
 // autoConnect: false — we connect manually once we have the Discord user + instanceId ready
 export const socket = io(SOCKET_URL, {
-  path: "/.proxy/socketio", // 👈 yeh naya hai — /.proxy/ prefix zaroori hai Discord proxy ke liye
+  path: "/.proxy/socketio/ws", // 👈 yeh naya hai — /.proxy/ prefix zaroori hai Discord proxy ke liye
   autoConnect: false,
   withCredentials: true,
   transports: ["polling"], // polling fallback rakha, agar websocket fail ho to bhi try kare

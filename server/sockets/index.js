@@ -22,7 +22,7 @@ const corsOriginCheck = (origin, callback) => {
 
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
-    path: "/socketio",
+    path: "/ws",
     transports: ["polling"],
     cors: {
       origin: corsOriginCheck,   // 👈 badla — "*" hataya, function use kiya
