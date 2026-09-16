@@ -4,7 +4,8 @@ import { registerRoomHandlers } from "./roomHandlers.js";
 
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
-    path: "/socketio", // 👈 add kiya — dot ke bina, Discord URL Mapping se match karne ke liye
+    path: "/socketio",
+     transports: ["polling"],  
     cors: {
       origin: process.env.CLIENT_URL || "*",
       credentials: true,
