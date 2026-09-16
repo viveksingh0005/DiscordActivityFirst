@@ -30,6 +30,14 @@ export const initSocket = (httpServer) => {
     },
   });
 
+   io.engine.on("connection_error", (err) => {
+    console.log("Engine connection_error:", {
+      code: err.code,
+      message: err.message,
+      context: err.context,
+    });
+  });
+
   io.use((socket, next) => {
     const { instanceId, discordId, username } = socket.handshake.auth || {};
 

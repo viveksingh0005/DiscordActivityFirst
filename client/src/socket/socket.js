@@ -12,6 +12,7 @@ export const socket = io(SOCKET_URL, {
   transports: ["polling"], // polling fallback rakha, agar websocket fail ho to bhi try kare
 });
 
+
 // Call this once, after Discord auth + instanceId are available
 export const connectSocket = ({ instanceId, discordUser }) => {
   if (socket.connected) return;
