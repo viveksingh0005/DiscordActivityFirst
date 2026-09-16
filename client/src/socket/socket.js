@@ -9,7 +9,7 @@ export const socket = io(SOCKET_URL, {
   path: "/.proxy/socketio", // 👈 yeh naya hai — /.proxy/ prefix zaroori hai Discord proxy ke liye
   autoConnect: false,
   withCredentials: true,
-  transports: [ "polling"], // polling fallback rakha, agar websocket fail ho to bhi try kare
+  transports: ["websocket", "polling"], // polling fallback rakha, agar websocket fail ho to bhi try kare
 });
 
 // Call this once, after Discord auth + instanceId are available

@@ -5,7 +5,7 @@ import { registerRoomHandlers } from "./roomHandlers.js";
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
     path: "/socketio",
-     transports: ["polling"],  
+      
     cors: {
       origin: process.env.CLIENT_URL || "*",
       credentials: true,
@@ -35,7 +35,7 @@ export const initSocket = (httpServer) => {
     socket.join(socket.data.instanceId);
 
     registerRoomHandlers(io, socket);
-    registerPatternGameHandlers(io, socket);
+   
 
     socket.on("disconnect", (reason) => {
       console.log(`Socket disconnected: ${socket.id} (${reason})`);
