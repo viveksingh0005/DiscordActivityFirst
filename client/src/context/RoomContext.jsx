@@ -26,7 +26,8 @@ export const RoomProvider = ({ children, instanceId, discordUser }) => {
       setRoom(data.room);
       setPlayers(data.players);
       setSpectators(data.spectators);
-      setIsHost(data.hostId === socket.auth?.discordId);
+      const me = data.players.find((p) => p.discordId === socket.auth?.discordId);
+setIsHost(!!me?.isHost);
     };
     const onSessionUpdate = (data) => {
       console.log("[socket] sessionUpdate received:", data);
