@@ -3,10 +3,10 @@ import { socket } from "../socket/socket";
 import { useRoom } from "../context/RoomContext";
 import PatternGrid from "./PatternGrid";
 import CountdownTimer from "./CountDownTimer";
-const [finalLeaderboard, setFinalLeaderboard] = useState(null);
+
 const PatternGame = () => {
   const { players } = useRoom();
-
+  const [finalLeaderboard, setFinalLeaderboard] = useState(null);
   const [phase, setPhase] = useState("waiting"); // waiting | showing | guessing | result
   const [highlightedIndexes, setHighlightedIndexes] = useState([]);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
