@@ -13,7 +13,7 @@ const PatternGame = () => {
   const [roundNumber, setRoundNumber] = useState(0);
   const [phaseEndsAt, setPhaseEndsAt] = useState(null); // server timestamp, for CountdownTimer
   const [roundResult, setRoundResult] = useState(null); // per-player scores, correct pattern
-  const navigate = useNavigate();
+ 
 
   useEffect(() => {
     const onSessionEnded = (data) => setFinalLeaderboard(data.leaderboard);
