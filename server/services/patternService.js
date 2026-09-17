@@ -1,51 +1,146 @@
-// Generates a random pattern for a 4x4 grid (16 boxes, indexes 0-15)
-// difficulty scales the number of highlighted boxes for progressive rounds
-export const generatePattern = (roundNumber) => {
-  const totalBoxes = 16;
+import Room from "../models/Room.js";
 
-  // Progressive difficulty: start at 3 highlighted boxes, cap at 9
-  const highlightCount = Math.min(3 + Math.floor((roundNumber - 1) / 2), 9);
+const GRID_SIZE = 16;
+const PATTERN_LENGTH = 6;
+const SHOW_DURATION_MS = 10000;
+const GUESS_DURATION_MS = 10000;
+const RESULT_DURATION_MS = 6000;
+const TOTAL_ROUNDS = 10;
 
-  const indexes = [];
-  while (indexes.length < highlightCount) {
-    const candidate = Math.floor(Math.random() * totalBoxes);
-    if (!indexes.includes(candidate)) {
-      indexes.push(candidate);
-    }
+// One entry per active instanceId — the whole session's live state
+const sessions = new Map();
+
+const randomPattern = () => {
+  const indexes = new Set();
+  while (indexes.size < PATTERN_LENGTH) {
+    indexes.add(Math.floor(Math.random() * GRID_SIZE));
   }
-
-  return indexes;
+  return [...indexes];
 };
 
-// Shrinking reveal time, floors at 5s (matches the earlier design idea)
-export const getRevealDuration = (roundNumber) => {
-  const base = 10000;
-  const shrinkPerRound = 500;
-  const floor = 5000;
-  return Math.max(floor, base - (roundNumber - 1) * shrinkPerRound);
-};
-
-// Compares a submitted guess against the real pattern — this is the only place
-// "correct" is ever decided, and it only runs server-side after guessing closes
-export const scoreSubmission = ({ pattern, selectedIndexes }) => {
+const scoreSubmission = (pattern, selected, submittedAt, phaseStart, phaseEndsAt) => {
   const correctSet = new Set(pattern);
-  const selectedSet = new Set(selectedIndexes);
+  const selectedSet = new Set(selected);
+  const correctCount = [...selectedSet].filter((i) => correctSet.has(i)).length;
+  const isPerfect = correctCount === pattern.length && selectedSet.size === pattern.length;
 
-  let correctCount = 0;
-  let wrongCount = 0;
+  if (!isPerfect) return { correctCount, points: 0 };
 
-  selectedSet.forEach((index) => {
-    if (correctSet.has(index)) correctCount += 1;
-    else wrongCount += 1;
+  const totalWindow = phaseEndsAt - phaseStart;
+  const timeUsed = Math.max(0, submittedAt - phaseStart);
+  const speedRatio = Math.max(0, 1 - timeUsed / totalWindow);
+  return { correctCount, points: Math.round(100 + speedRatio * 100) };
+};
+
+export const startPatternSession = (io, instanceId) => {
+  if (sessions.has(instanceId)) return; // already running for this room
+
+  sessions.set(instanceId, {
+    roundNumber: 0,
+    pattern: [],
+    phaseStart: 0,
+    phaseEndsAt: 0,
+    submissions: new Map(),
+    totals: new Map(),
+    timer: null,
   });
 
-  const missedCount = pattern.length - correctCount;
-  const isPerfect = correctCount === pattern.length && wrongCount === 0;
+  runNextRound(io, instanceId);
+};
 
-  // Partial-credit scoring (from the earlier design): points scale with accuracy,
-  // a wrong pick costs a bit to discourage "select everything" spamming
-  const rawPoints = correctCount * 10 - wrongCount * 5;
-  const points = Math.max(0, isPerfect ? rawPoints + 20 : rawPoints); // bonus for a clean sweep
+const runNextRound = (io, instanceId) => {
+  const session = sessions.get(instanceId);
+  if (!session) return;
 
-  return { correctCount, wrongCount, missedCount, isPerfect, points };
+  session.roundNumber += 1;
+  session.pattern = randomPattern();
+  session.submissions = new Map();
+  session.phaseStart = Date.now();
+  session.phaseEndsAt = session.phaseStart + SHOW_DURATION_MS;
+
+  io.to(instanceId).emit("showPattern", {
+    roundNumber: session.roundNumber,
+    pattern: session.pattern,
+    phaseEndsAt: session.phaseEndsAt,
+  });
+
+  session.timer = setTimeout(() => beginGuessing(io, instanceId), SHOW_DURATION_MS);
+};
+
+const beginGuessing = (io, instanceId) => {
+  const session = sessions.get(instanceId);
+  if (!session) return;
+
+  session.phaseStart = Date.now();
+  session.phaseEndsAt = session.phaseStart + GUESS_DURATION_MS;
+
+  io.to(instanceId).emit("hidePattern", { phaseEndsAt: session.phaseEndsAt });
+
+  session.timer = setTimeout(() => finishRound(io, instanceId), GUESS_DURATION_MS);
+};
+
+const finishRound = async (io, instanceId) => {
+  const session = sessions.get(instanceId);
+  if (!session) return;
+
+  const room = await Room.findOne({ instanceId });
+  if (!room) return sessions.delete(instanceId);
+
+  const scores = room.players.map(({ discordId, username }) => {
+    const sub = session.submissions.get(discordId);
+    const { correctCount, points } = sub
+      ? scoreSubmission(session.pattern, sub.selectedIndexes, sub.submittedAt, session.phaseStart, session.phaseEndsAt)
+      : { correctCount: 0, points: 0 };
+
+    session.totals.set(discordId, (session.totals.get(discordId) || 0) + points);
+    return { discordId, username, correctCount, points, total: session.totals.get(discordId) };
+  });
+
+  io.to(instanceId).emit("roundResult", {
+    roundNumber: session.roundNumber,
+    correctPattern: session.pattern,
+    scores,
+  });
+
+  session.timer = setTimeout(
+    () => (session.roundNumber >= TOTAL_ROUNDS ? endSession(io, instanceId) : runNextRound(io, instanceId)),
+    RESULT_DURATION_MS
+  );
+};
+
+export const submitGuess = ({ instanceId, discordId, roundNumber, selectedIndexes }) => {
+  const session = sessions.get(instanceId);
+  if (!session || session.roundNumber !== roundNumber) return;
+  if (session.submissions.has(discordId)) return; // one guess per round
+  session.submissions.set(discordId, { selectedIndexes, submittedAt: Date.now() });
+};
+
+const endSession = async (io, instanceId) => {
+  const session = sessions.get(instanceId);
+  sessions.delete(instanceId);
+  if (!session) return;
+
+  const room = await Room.findOne({ instanceId });
+  if (!room) return;
+
+  const leaderboard = room.players
+    .map(({ discordId, username }) => ({ discordId, username, total: session.totals.get(discordId) || 0 }))
+    .sort((a, b) => b.total - a.total);
+
+  room.status = "lobby";
+
+  const openSlots = room.capacity - room.players.length;
+  if (openSlots > 0 && room.spectators.length > 0) {
+    room.players.push(...room.spectators.splice(0, openSlots));
+  }
+  await room.save();
+
+  io.to(instanceId).emit("sessionEnded", { leaderboard });
+  io.to(instanceId).emit("roomUpdate", {
+    room: { instanceId: room.instanceId, hostId: room.hostId, status: room.status, capacity: room.capacity },
+    players: room.players.map(({ discordId, username, avatar }) => ({
+      discordId, username, avatar, isHost: discordId === room.hostId,
+    })),
+    spectators: room.spectators.map(({ discordId, username, avatar }) => ({ discordId, username, avatar })),
+  });
 };

@@ -5,7 +5,7 @@ import {
   serializeRoom,
 } from "../services/roomService.js";
 import Room from "../models/Room.js";
-
+import { startPatternSession } from "../services/patternService.js";
 const GRACE_PERIOD_MS = 45000; 
 const MIN_PLAYERS_TO_START = 2;
 
@@ -54,7 +54,8 @@ export const registerRoomHandlers = (io, socket) => {
     await room.save();
 
     io.to(instanceId).emit("roomUpdate", serializeRoom(room));
-    io.to(instanceId).emit("sessionStarting"); // patternGameHandlers listens for the follow-up
+    io.to(instanceId).emit("sessionStarting"); 
+    startPatternSession(io, instanceId);
   };
 
   const handleDisconnect = async () => {

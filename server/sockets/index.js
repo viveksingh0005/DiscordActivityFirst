@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { registerRoomHandlers } from "./roomHandlers.js";
-
+import { registerPatternGameHandlers } from "./patternGameHandlers.js";
 const allowedOrigins = [
   "https://client-ux1k.vercel.app",
   /\.discordsays\.com$/,
@@ -64,7 +64,7 @@ export const initSocket = (httpServer) => {
     socket.join(socket.data.instanceId);
 
     registerRoomHandlers(io, socket);
-    // registerPatternGameHandlers(io, socket); // 👈 comment kiya — abhi import/file ready nahi hai
+    registerPatternGameHandlers(io, socket); 
 
     socket.on("disconnect", (reason) => {
       console.log(`Socket disconnected: ${socket.id} (${reason})`);

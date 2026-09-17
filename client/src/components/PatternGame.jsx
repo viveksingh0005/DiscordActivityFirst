@@ -3,7 +3,7 @@ import { socket } from "../socket/socket";
 import { useRoom } from "../context/RoomContext";
 import PatternGrid from "./PatternGrid";
 import CountdownTimer from "./CountDownTimer";
-
+const [finalLeaderboard, setFinalLeaderboard] = useState(null);
 const PatternGame = () => {
   const { players } = useRoom();
 
@@ -13,7 +13,13 @@ const PatternGame = () => {
   const [roundNumber, setRoundNumber] = useState(0);
   const [phaseEndsAt, setPhaseEndsAt] = useState(null); // server timestamp, for CountdownTimer
   const [roundResult, setRoundResult] = useState(null); // per-player scores, correct pattern
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const onSessionEnded = (data) => setFinalLeaderboard(data.leaderboard);
+    socket.on("sessionEnded", onSessionEnded);
+    return () => socket.off("sessionEnded", onSessionEnded);
+  }, []);
   useEffect(() => {
     // Server broadcasts the pattern only during this brief window
     const onShowPattern = (data) => {

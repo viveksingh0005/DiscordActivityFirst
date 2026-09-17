@@ -1,13 +1,22 @@
 import { useRoom } from "../context/RoomContext";
 import { socket } from "../socket/socket";
 import PlayerList from "./PlayerList";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Lobby = () => {
   const { room, players, spectators, isHost } = useRoom();
-
+  
+  const navigate = useNavigate();
   const handleStart = () => {
     socket.emit("startSession");
   };
+
+   useEffect(() => {
+    const onSessionStarting = () => navigate("/game");
+    socket.on("sessionStarting", onSessionStarting);
+    return () => socket.off("sessionStarting", onSessionStarting);
+  }, [navigate]);
 
   if (!room) {
     return (
