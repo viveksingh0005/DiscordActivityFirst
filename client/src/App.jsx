@@ -91,7 +91,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/lobby" element={<Lobby />} />
-        <Route path="/gamemultiplayer" element={<PatternGame />} />
+        <Route path="/lobby" element={<PatternGame />} />
       </Routes>
     </RoomProvider>
   );
