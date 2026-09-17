@@ -13,7 +13,7 @@ const Lobby = () => {
   };
 
    useEffect(() => {
-    const onSessionStarting = () => navigate("/game");
+    const onSessionStarting = () => navigate("/gamemultiplayer");
     socket.on("sessionStarting", onSessionStarting);
     return () => socket.off("sessionStarting", onSessionStarting);
   }, [navigate]);
