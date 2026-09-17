@@ -6,7 +6,7 @@ import { initializeDiscord } from "./discordSdk";
 import Profile from "./components/Profile";
 import Leaderboard from "./components/Leaderboard";
 import Lobby from "./components/Lobby";
-import Lobby from "./components/PatternGame";
+
 import { RoomProvider } from "./context/RoomContext";
 
 console.error("🔥🔥🔥 APP.JSX LOADED - BUILD CHECK 🔥🔥🔥");
@@ -91,7 +91,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/lobby" element={<Lobby />} />
-        <Route path="/gamemultiplayer" element={<PatterrnGame />} />
+      
       </Routes>
     </RoomProvider>
   );
