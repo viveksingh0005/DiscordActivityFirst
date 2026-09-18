@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket/socket";
-import { useRoom } from "../context/RoomContext";
+
 import PatternGrid from "./PatternGrid";
 import CountdownTimer from "./CountDownTimer";
 
 const PatternGame = () => {
-  const { players } = useRoom();
-  const [finalLeaderboard, setFinalLeaderboard] = useState(null);
-  const [phase, setPhase] = useState("waiting"); // waiting | showing | guessing | result
+  
+  const [phase, setPhase] = useState("waiting"); 
   const [highlightedIndexes, setHighlightedIndexes] = useState([]);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [roundNumber, setRoundNumber] = useState(0);
-  const [phaseEndsAt, setPhaseEndsAt] = useState(null); // server timestamp, for CountdownTimer
-  const [roundResult, setRoundResult] = useState(null); // per-player scores, correct pattern
+  const [phaseEndsAt, setPhaseEndsAt] = useState(null); 
+  const [roundResult, setRoundResult] = useState(null); 
  
 
   useEffect(() => {
@@ -21,7 +20,7 @@ const PatternGame = () => {
     return () => socket.off("sessionEnded", onSessionEnded);
   }, []);
   useEffect(() => {
-    // Server broadcasts the pattern only during this brief window
+   
     const onShowPattern = (data) => {
       setRoundNumber(data.roundNumber);
       setHighlightedIndexes(data.pattern);
@@ -31,17 +30,17 @@ const PatternGame = () => {
       setPhase("showing");
     };
 
-    // Server clears the pattern from view and opens guessing
+    
     const onHidePattern = (data) => {
-      setHighlightedIndexes([]); // critical: don't keep the answer in state during guessing
+      setHighlightedIndexes([]); 
       setPhaseEndsAt(data.phaseEndsAt);
       setPhase("guessing");
     };
 
-    // Server sends the real pattern back only now, along with everyone's scores
+   
     const onRoundResult = (data) => {
       setHighlightedIndexes(data.correctPattern);
-      setRoundResult(data.scores); // e.g. [{ discordId, selected, correctCount, points }]
+      setRoundResult(data.scores); 
       setPhase("result");
     };
 
@@ -63,7 +62,7 @@ const PatternGame = () => {
   };
 
   const handleSubmit = () => {
-    // Server validates timing + computes correctness — client just sends the guess
+   
     socket.emit("submitGuess", { roundNumber, selectedIndexes });
   };
 
