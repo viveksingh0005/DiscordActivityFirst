@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket/socket";
-
+import { useRoom } from "../context/RoomContext";
 import PatternGrid from "./PatternGrid";
 import CountdownTimer from "./CountDownTimer";
 
 const PatternGame = () => {
-  
+  const { players } = useRoom();
+  const [finalLeaderboard, setFinalLeaderboard] = useState(null);
   const [phase, setPhase] = useState("waiting"); 
   const [highlightedIndexes, setHighlightedIndexes] = useState([]);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
