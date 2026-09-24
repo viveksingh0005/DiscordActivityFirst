@@ -32,6 +32,9 @@ const RandomNumberGenerator = () => {
   // Points received from backend
   const [points, setPoints] = useState(null);
 
+  const [leaveConfirm, setLeaveConfirm] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+
 
   // =========================
   // START GAME (standalone function so restartGame can call it too)
@@ -292,6 +295,60 @@ const RandomNumberGenerator = () => {
 
 
 
+  const isRoundOpen = Boolean(gameId) && !gameResult && !loading;
+
+  const requestLeave = () => {
+    if (leaving) return;
+
+    if (isRoundOpen) {
+      setLeaveConfirm(true);
+      return;
+    }
+
+    navigate("/");
+  };
+
+  const confirmLeaveAsLoss = async () => {
+    if (!gameId) {
+      navigate("/");
+      return;
+    }
+
+    try {
+      setLeaving(true);
+      setError("");
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("You are not logged in.");
+        setLeaving(false);
+        return;
+      }
+
+      const response = await fetch("/.proxy/api/game/forfeit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ gameId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to leave game");
+      }
+
+      navigate("/");
+    } catch (leaveError) {
+      console.error("Leave game error:", leaveError);
+      setError(leaveError.message || "Failed to leave game");
+      setLeaving(false);
+    }
+  };
+
   const restartGame = () => {
     setIsHidden(false);
     setTargetSum(null);
@@ -401,7 +458,7 @@ const RandomNumberGenerator = () => {
 
         </p>
         <button
-          onClick={() => navigate("/")}
+          onClick={requestLeave}
           className="px-6 py-2 rounded-xl text-gray-600 hover:bg-white/20 transition"
         >
           ← Back to Home
@@ -736,6 +793,37 @@ const RandomNumberGenerator = () => {
 
       )}
 
+      {leaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <h2 className="mb-2 text-xl font-bold text-gray-800">
+              Leave this game?
+            </h2>
+            <p className="mb-6 text-gray-600">
+              You have not submitted an answer yet. Leaving now will be counted
+              as a loss.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={() => setLeaveConfirm(false)}
+                disabled={leaving}
+                className="rounded-xl border border-gray-200 px-5 py-2.5 font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Stay and play
+              </button>
+              <button
+                type="button"
+                onClick={confirmLeaveAsLoss}
+                disabled={leaving}
+                className="rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {leaving ? "Leaving..." : "Leave as loss"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

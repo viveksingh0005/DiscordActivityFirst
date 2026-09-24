@@ -143,3 +143,54 @@ export const submitAnswer = async (req, res) => {
   }
 };
 
+export const forfeitGame = async (req, res) => {
+  try {
+    const { gameId } = req.body;
+
+    if (!gameId) {
+      return res.status(400).json({
+        message: "Game ID is required",
+      });
+    }
+
+    const game = await Game.findOne({
+      _id: gameId,
+      player: req.user._id,
+    });
+
+    if (!game) {
+      return res.status(404).json({
+        message: "Game not found",
+      });
+    }
+
+    if (game.status !== "active") {
+      return res.json({
+        result: "already_ended",
+        status: game.status,
+        points: req.user.points,
+      });
+    }
+
+    game.status = "lost";
+    await game.save();
+
+    req.user.gamesPlayed += 1;
+    await req.user.save();
+
+    return res.json({
+      result: "lose",
+      message: "Game forfeited",
+      points: req.user.points,
+      gamesPlayed: req.user.gamesPlayed,
+      gamesWon: req.user.gamesWon,
+    });
+  } catch (error) {
+    console.error("Forfeit game error:", error);
+
+    res.status(500).json({
+      message: "Failed to forfeit game",
+    });
+  }
+};
+
