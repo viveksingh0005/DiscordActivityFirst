@@ -100,6 +100,24 @@ export const removeMember = async ({ roomId, discordId }) => {
   return room;
 };
 
+// Updates a member's location ("home" | "lobby" | "game")
+export const updateMemberLocation = async ({ instanceId, discordId, location }) => {
+  const room = await Room.findOne({ instanceId });
+  if (!room) return null;
+
+  const member =
+    room.players.find((p) => p.discordId === discordId) ||
+    room.spectators.find((s) => s.discordId === discordId);
+
+  if (member) {
+    member.location = location;
+    room.lastActivityAt = new Date();
+    await room.save();
+  }
+
+  return room;
+};
+
 // Builds the payload sent to clients on every roomUpdate broadcast
 export const serializeRoom = (room) => ({
   room: {
@@ -108,15 +126,17 @@ export const serializeRoom = (room) => ({
     status: room.status,
     capacity: room.capacity,
   },
-  players: room.players.map(({ discordId, username, avatar }) => ({
+  players: room.players.map(({ discordId, username, avatar, location }) => ({
     discordId,
     username,
     avatar,
+    location: location || "home",
     isHost: discordId === room.hostId,
   })),
-  spectators: room.spectators.map(({ discordId, username, avatar }) => ({
+  spectators: room.spectators.map(({ discordId, username, avatar, location }) => ({
     discordId,
     username,
     avatar,
+    location: location || "home",
   })),
 });

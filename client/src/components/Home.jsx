@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRoom } from "../context/RoomContext";
+import { socket } from "../socket/socket";
 
 const Home = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+    const roomContext = useRoom();
+    const room = roomContext?.room;
+    const players = roomContext?.players || [];
+
+    // Notify backend that local user is on the "home" screen
+    useEffect(() => {
+        if (socket.connected) {
+            socket.emit("setLocation", { location: "home" });
+        }
+    }, []);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -11,6 +23,12 @@ const Home = () => {
             setUser(JSON.parse(storedUser));
         }
     }, []);
+
+    // Filter players who are actively in "lobby" or "game"
+    const activeLobbyPlayers = players.filter(
+        (p) => p.location === "lobby" || p.location === "game"
+    );
+    const showCard = room && (room.status === "active" || activeLobbyPlayers.length > 0);
 
     return (
         <div
@@ -112,6 +130,96 @@ const Home = () => {
                         </div>
                     )}
 
+                    {/* Active Multiplayer Room Card (shown when someone is in Lobby or Game) */}
+                    {showCard && (
+                        <div
+                            className="w-full mb-5 p-4 rounded-xl flex flex-col gap-3 transition-all"
+                            style={{
+                                backgroundColor: "rgba(36, 29, 69, 0.95)",
+                                border: "1.5px solid #6366F1",
+                                boxShadow: "0 0 16px rgba(99, 102, 241, 0.35)",
+                                backdropFilter: "blur(8px)",
+                            }}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="relative flex h-3 w-3">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                                    </span>
+                                    <span
+                                        className="text-xs font-bold tracking-wider text-indigo-200 uppercase"
+                                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                                    >
+                                        Live Room Activity
+                                    </span>
+                                </div>
+                                <span
+                                    className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full tracking-wide shadow-sm"
+                                    style={{
+                                        backgroundColor: room.status === "active" ? "#10B981" : "#8B5CF6",
+                                        color: "#FFFFFF",
+                                    }}
+                                >
+                                    {room.status === "active" ? "Game In Progress 🎮" : "Lobby Waiting ⏳"}
+                                </span>
+                            </div>
+
+                            {/* Player avatars & count */}
+                            <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-lg border border-white/5">
+                                <div className="flex items-center gap-2 overflow-x-auto">
+                                    {(activeLobbyPlayers.length > 0 ? activeLobbyPlayers : players).map((p) => (
+                                        <div
+                                            key={p.discordId}
+                                            className="relative shrink-0 flex items-center justify-center rounded-full font-bold text-white overflow-hidden shadow-md"
+                                            title={`${p.username} (${p.location})`}
+                                            style={{
+                                                width: "36px",
+                                                height: "36px",
+                                                backgroundColor: "#4F46E5",
+                                                border: "2px solid #818CF8",
+                                            }}
+                                        >
+                                            {p.avatar ? (
+                                                <img
+                                                    src={`https://cdn.discordapp.com/avatars/${p.discordId}/${p.avatar}.png`}
+                                                    alt={p.username}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                (p.username || "P")[0].toUpperCase()
+                                            )}
+                                            {p.isHost && (
+                                                <span
+                                                    className="absolute bottom-0 right-0 text-[8px] bg-amber-400 text-black font-black px-1 rounded-full border border-black"
+                                                    title="Host"
+                                                >
+                                                    ★
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <span className="text-xs font-bold text-indigo-300 ml-2 shrink-0">
+                                    {activeLobbyPlayers.length || players.length} / {room.capacity || 4} Joined
+                                </span>
+                            </div>
+
+                            <button
+                                onClick={() =>
+                                    navigate(room.status === "active" ? "/gamemultiplayer" : "/lobby")
+                                }
+                                className="w-full py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white transition-all motion-safe:active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2"
+                                style={{
+                                    backgroundColor: room.status === "active" ? "#10B981" : "#FF3E88",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                                }}
+                            >
+                                {room.status === "active" ? "Spectate / View Game ➔" : "Join Lobby Now ➔"}
+                            </button>
+                        </div>
+                    )}
+
                     {/* Actions — tactile pressed-tile buttons */}
                     <div className="flex flex-col gap-3 w-full">
                         <button
@@ -124,7 +232,7 @@ const Home = () => {
                                 boxShadow: "4px 4px 0 0 rgba(8,5,20,0.55)",
                             }}
                         >
-                            Play now
+                            Single Player
                         </button>
                         <button  onClick={() => navigate("/lobby")}
                             className="w-full rounded-lg font-semibold transition-transform motion-safe:active:translate-x-[3px] motion-safe:active:translate-y-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -136,7 +244,7 @@ const Home = () => {
                                 fontSize: "clamp(0.95rem, 3.5vw, 1.05rem)",
                                 boxShadow: "4px 4px 0 0 rgba(8,5,20,0.4)",
                             }}  >
-                            Lobby
+                            Multiplayer Lobby
                         </button>
 
                         <button

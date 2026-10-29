@@ -3,6 +3,7 @@ import {
   markDisconnected,
   removeMember,
   serializeRoom,
+  updateMemberLocation,
 } from "../services/roomService.js";
 import Room from "../models/Room.js";
 import { startPatternSession } from "../services/patternService.js";
@@ -78,8 +79,17 @@ export const registerRoomHandlers = (io, socket) => {
     pendingRemovals.set(discordId, timer);
   };
 
+  const handleSetLocation = async ({ location }) => {
+    if (!location) return;
+    const updatedRoom = await updateMemberLocation({ instanceId, discordId, location });
+    if (updatedRoom) {
+      io.to(instanceId).emit("roomUpdate", serializeRoom(updatedRoom));
+    }
+  };
+
   joinRoom();
 
+  socket.on("setLocation", handleSetLocation);
   socket.on("startSession", handleStartSession);
   socket.on("disconnect", handleDisconnect);
 };

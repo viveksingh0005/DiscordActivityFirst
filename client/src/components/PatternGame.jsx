@@ -7,6 +7,12 @@ import CountdownTimer from "./CountDownTimer";
 const PatternGame = () => {
   const { players } = useRoom();
   const [finalLeaderboard, setFinalLeaderboard] = useState(null);
+
+  useEffect(() => {
+    if (socket.connected) {
+      socket.emit("setLocation", { location: "game" });
+    }
+  }, []);
   const [phase, setPhase] = useState("waiting"); 
   const [highlightedIndexes, setHighlightedIndexes] = useState([]);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
