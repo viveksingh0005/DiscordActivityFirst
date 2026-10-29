@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRoom } from "../context/RoomContext";
 
 const Home = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+    const roomContext = useRoom();
+    const room = roomContext?.room;
+    const players = roomContext?.players || [];
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -112,6 +116,87 @@ const Home = () => {
                         </div>
                     )}
 
+                    {/* Active Multiplayer Room Card (only shown when a multiplayer room has players) */}
+                    {room && players.length > 0 && (
+                        <div
+                            className="w-full mb-5 p-3.5 rounded-xl flex flex-col gap-2.5 transition-all"
+                            style={{
+                                backgroundColor: "#241D45",
+                                border: "1px solid #6366F1",
+                                boxShadow: "0 0 12px rgba(99, 102, 241, 0.2)",
+                            }}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="relative flex h-2.5 w-2.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                                    </span>
+                                    <span className="text-xs font-semibold tracking-wide text-indigo-300 uppercase">
+                                        Multiplayer Room
+                                    </span>
+                                </div>
+                                <span
+                                    className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
+                                    style={{
+                                        backgroundColor: room.status === "active" ? "#10B981" : "#8B5CF6",
+                                        color: "#FFFFFF",
+                                    }}
+                                >
+                                    {room.status === "active" ? "In Game 🎮" : "Lobby Waiting"}
+                                </span>
+                            </div>
+
+                            {/* Player Avatars */}
+                            <div className="flex items-center gap-2 overflow-x-auto py-1">
+                                {players.map((p) => (
+                                    <div
+                                        key={p.discordId}
+                                        className="relative shrink-0 flex items-center justify-center rounded-full font-bold text-white overflow-hidden"
+                                        title={p.username}
+                                        style={{
+                                            width: "32px",
+                                            height: "32px",
+                                            backgroundColor: "#4F46E5",
+                                            border: "1.5px solid #818CF8",
+                                        }}
+                                    >
+                                        {p.avatar ? (
+                                            <img
+                                                src={`https://cdn.discordapp.com/avatars/${p.discordId}/${p.avatar}.png`}
+                                                alt={p.username}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            (p.username || "P")[0].toUpperCase()
+                                        )}
+                                        {p.isHost && (
+                                            <span
+                                                className="absolute bottom-0 right-0 text-[8px] bg-amber-400 text-black font-extrabold px-0.5 rounded-full"
+                                                title="Host"
+                                            >
+                                                ★
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() =>
+                                    navigate(room.status === "active" ? "/gamemultiplayer" : "/lobby")
+                                }
+                                className="w-full py-1.5 rounded-lg text-xs font-semibold text-white transition-transform active:scale-[0.98]"
+                                style={{
+                                    backgroundColor: "#6366F1",
+                                    boxShadow: "2px 2px 0 0 rgba(8,5,20,0.4)",
+                                }}
+                            >
+                                {room.status === "active" ? "Spectate / View Game" : "Join Lobby"}
+                            </button>
+                        </div>
+                    )}
+
                     {/* Actions — tactile pressed-tile buttons */}
                     <div className="flex flex-col gap-3 w-full">
                         <button
@@ -124,7 +209,7 @@ const Home = () => {
                                 boxShadow: "4px 4px 0 0 rgba(8,5,20,0.55)",
                             }}
                         >
-                            Play now
+                            Single Player
                         </button>
                         <button  onClick={() => navigate("/lobby")}
                             className="w-full rounded-lg font-semibold transition-transform motion-safe:active:translate-x-[3px] motion-safe:active:translate-y-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -136,7 +221,7 @@ const Home = () => {
                                 fontSize: "clamp(0.95rem, 3.5vw, 1.05rem)",
                                 boxShadow: "4px 4px 0 0 rgba(8,5,20,0.4)",
                             }}  >
-                            Lobby
+                            Multiplayer Lobby
                         </button>
 
                         <button
