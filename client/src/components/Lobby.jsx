@@ -8,6 +8,13 @@ const Lobby = () => {
   const { room, players, spectators, isHost } = useRoom();
   
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (socket.connected) {
+      socket.emit("setLocation", { location: "lobby" });
+    }
+  }, []);
+
   const handleStart = () => {
     socket.emit("startSession");
   };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRoom } from "../context/RoomContext";
+import { socket } from "../socket/socket";
 
 const Home = () => {
     const [user, setUser] = useState(null);
@@ -9,12 +10,25 @@ const Home = () => {
     const room = roomContext?.room;
     const players = roomContext?.players || [];
 
+    // Notify backend that local user is on the "home" screen
+    useEffect(() => {
+        if (socket.connected) {
+            socket.emit("setLocation", { location: "home" });
+        }
+    }, []);
+
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
     }, []);
+
+    // Filter players who are actively in "lobby" or "game"
+    const activeLobbyPlayers = players.filter(
+        (p) => p.location === "lobby" || p.location === "game"
+    );
+    const showCard = room && (room.status === "active" || activeLobbyPlayers.length > 0);
 
     return (
         <div
@@ -116,83 +130,92 @@ const Home = () => {
                         </div>
                     )}
 
-                    {/* Active Multiplayer Room Card (only shown when a multiplayer room has players) */}
-                    {room && players.length > 0 && (
+                    {/* Active Multiplayer Room Card (shown when someone is in Lobby or Game) */}
+                    {showCard && (
                         <div
-                            className="w-full mb-5 p-3.5 rounded-xl flex flex-col gap-2.5 transition-all"
+                            className="w-full mb-5 p-4 rounded-xl flex flex-col gap-3 transition-all"
                             style={{
-                                backgroundColor: "#241D45",
-                                border: "1px solid #6366F1",
-                                boxShadow: "0 0 12px rgba(99, 102, 241, 0.2)",
+                                backgroundColor: "rgba(36, 29, 69, 0.95)",
+                                border: "1.5px solid #6366F1",
+                                boxShadow: "0 0 16px rgba(99, 102, 241, 0.35)",
+                                backdropFilter: "blur(8px)",
                             }}
                         >
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="relative flex h-2.5 w-2.5">
+                                    <span className="relative flex h-3 w-3">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
                                     </span>
-                                    <span className="text-xs font-semibold tracking-wide text-indigo-300 uppercase">
-                                        Multiplayer Room
+                                    <span
+                                        className="text-xs font-bold tracking-wider text-indigo-200 uppercase"
+                                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                                    >
+                                        Live Room Activity
                                     </span>
                                 </div>
                                 <span
-                                    className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
+                                    className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full tracking-wide shadow-sm"
                                     style={{
                                         backgroundColor: room.status === "active" ? "#10B981" : "#8B5CF6",
                                         color: "#FFFFFF",
                                     }}
                                 >
-                                    {room.status === "active" ? "In Game 🎮" : "Lobby Waiting"}
+                                    {room.status === "active" ? "Game In Progress 🎮" : "Lobby Waiting ⏳"}
                                 </span>
                             </div>
 
-                            {/* Player Avatars */}
-                            <div className="flex items-center gap-2 overflow-x-auto py-1">
-                                {players.map((p) => (
-                                    <div
-                                        key={p.discordId}
-                                        className="relative shrink-0 flex items-center justify-center rounded-full font-bold text-white overflow-hidden"
-                                        title={p.username}
-                                        style={{
-                                            width: "32px",
-                                            height: "32px",
-                                            backgroundColor: "#4F46E5",
-                                            border: "1.5px solid #818CF8",
-                                        }}
-                                    >
-                                        {p.avatar ? (
-                                            <img
-                                                src={`https://cdn.discordapp.com/avatars/${p.discordId}/${p.avatar}.png`}
-                                                alt={p.username}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            (p.username || "P")[0].toUpperCase()
-                                        )}
-                                        {p.isHost && (
-                                            <span
-                                                className="absolute bottom-0 right-0 text-[8px] bg-amber-400 text-black font-extrabold px-0.5 rounded-full"
-                                                title="Host"
-                                            >
-                                                ★
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
+                            {/* Player avatars & count */}
+                            <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-lg border border-white/5">
+                                <div className="flex items-center gap-2 overflow-x-auto">
+                                    {(activeLobbyPlayers.length > 0 ? activeLobbyPlayers : players).map((p) => (
+                                        <div
+                                            key={p.discordId}
+                                            className="relative shrink-0 flex items-center justify-center rounded-full font-bold text-white overflow-hidden shadow-md"
+                                            title={`${p.username} (${p.location})`}
+                                            style={{
+                                                width: "36px",
+                                                height: "36px",
+                                                backgroundColor: "#4F46E5",
+                                                border: "2px solid #818CF8",
+                                            }}
+                                        >
+                                            {p.avatar ? (
+                                                <img
+                                                    src={`https://cdn.discordapp.com/avatars/${p.discordId}/${p.avatar}.png`}
+                                                    alt={p.username}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                (p.username || "P")[0].toUpperCase()
+                                            )}
+                                            {p.isHost && (
+                                                <span
+                                                    className="absolute bottom-0 right-0 text-[8px] bg-amber-400 text-black font-black px-1 rounded-full border border-black"
+                                                    title="Host"
+                                                >
+                                                    ★
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <span className="text-xs font-bold text-indigo-300 ml-2 shrink-0">
+                                    {activeLobbyPlayers.length || players.length} / {room.capacity || 4} Joined
+                                </span>
                             </div>
 
                             <button
                                 onClick={() =>
                                     navigate(room.status === "active" ? "/gamemultiplayer" : "/lobby")
                                 }
-                                className="w-full py-1.5 rounded-lg text-xs font-semibold text-white transition-transform active:scale-[0.98]"
+                                className="w-full py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white transition-all motion-safe:active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2"
                                 style={{
-                                    backgroundColor: "#6366F1",
-                                    boxShadow: "2px 2px 0 0 rgba(8,5,20,0.4)",
+                                    backgroundColor: room.status === "active" ? "#10B981" : "#FF3E88",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                                 }}
                             >
-                                {room.status === "active" ? "Spectate / View Game" : "Join Lobby"}
+                                {room.status === "active" ? "Spectate / View Game ➔" : "Join Lobby Now ➔"}
                             </button>
                         </div>
                     )}

@@ -8,6 +8,7 @@ const memberSchema = new mongoose.Schema(
     socketId: { type: String, required: true },
     connected: { type: Boolean, default: true },
     disconnectedAt: { type: Date, default: null }, // for grace-period reconnect logic
+    location: { type: String, enum: ["home", "lobby", "game"], default: "home" },
   },
   { _id: false }
 );
